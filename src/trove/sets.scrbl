@@ -154,7 +154,7 @@
   (fun-spec
     (name "set-map")
     (arity 2)
-    (params ())
+    (params)
     (args ("f" "st"))
     (return ,s-of-b)
     (contract
@@ -165,7 +165,7 @@
   (fun-spec
     (name "set-filter")
     (arity 2)
-    (params ())
+    (params)
     (args ("f" "st"))
     (return ,s-of-a)
     (contract
@@ -176,7 +176,7 @@
   (fun-spec
     (name "set-all")
     (arity 2)
-    (params ())
+    (params)
     (args ("f" "st"))
     (return ,boolean)
     (contract
@@ -187,7 +187,7 @@
   (fun-spec
     (name "set-any")
     (arity 2)
-    (params ())
+    (params)
     (args ("f" "st"))
     (return ,boolean)
     (contract
@@ -198,7 +198,7 @@
   (fun-spec
     (name "set-find")
     (arity 2)
-    (params ())
+    (params)
     (args ("f" "st"))
     (return ,opt-of-a)
     (contract
@@ -209,7 +209,7 @@
   (fun-spec
     (name "set-partition")
     (arity 2)
-    (params ())
+    (params)
     (args ("f" "st"))
     (return
       (a-record
@@ -225,7 +225,7 @@
   (fun-spec
     (name "set-disjoint")
     (arity 2)
-    (params ())
+    (params)
     (args ("st1" "st2"))
     (return ,boolean)
     (contract
@@ -236,7 +236,7 @@
   (fun-spec
     (name "is-subset")
     (arity 2)
-    (params ())
+    (params)
     (args ("st1" "st2"))
     (return ,boolean)
     (contract
@@ -247,7 +247,7 @@
   (fun-spec
     (name "set-equal")
     (arity 2)
-    (params ())
+    (params)
     (args ("st1" "st2"))
     (return ,boolean)
     (contract
@@ -258,13 +258,101 @@
   (fun-spec
     (name "power-set")
     (arity 1)
-    (params ())
+    (params)
     (args ("st"))
     (return (a-app (a-id "Set" (xref "sets" "Set")) ,s-of-a))
     (contract
       (a-arrow
         ,s-of-a)
         (a-app (a-id "Set" (xref "sets" "Set")) ,s-of-a)))
+  (fun-spec
+    (name "set-union")
+    (arity 2)
+    (params)
+    (args ("st1" "st2"))
+    (return ,s-of-a)
+    (contract
+      (a-arrow
+        ,s-of-a
+        ,s-of-a)
+        ,s-of-a))
+  (fun-spec
+    (name "set-difference")
+    (arity 2)
+    (params)
+    (args ("st1" "st2"))
+    (return ,s-of-a)
+    (contract
+      (a-arrow
+        ,s-of-a
+        ,s-of-a)
+        ,s-of-a))
+  (fun-spec
+    (name "set-symmetric-difference")
+    (arity 2)
+    (params)
+    (args ("st1" "st2"))
+    (return ,s-of-a)
+    (contract
+      (a-arrow
+        ,s-of-a
+        ,s-of-a)
+        ,s-of-a))
+  (fun-spec
+    (name "set-to-list")
+    (arity 1)
+    (params)
+    (args ("st"))
+    (return ,l-of-a)
+    (contract
+      (a-arrow
+        ,s-of-a)
+        ,l-of-a))
+  (fun-spec
+    (name "set-add")
+    (arity 2)
+    (params)
+    (args ("elt" "st"))
+    (return ,s-of-a)
+    (contract
+      (a-arrow
+        "a"
+        ,s-of-a)
+        ,s-of-a))
+  (fun-spec
+    (name "set-remove")
+    (arity 2)
+    (params)
+    (args ("elt" "st"))
+    (return ,s-of-a)
+    (contract
+      (a-arrow
+        "a"
+        ,s-of-a)
+        ,s-of-a))
+  (fun-spec
+    (name "set-member")
+    (arity 2)
+    (params)
+    (args ("st" "elt"))
+    (return ,boolean)
+    (contract
+      (a-arrow
+        ,s-of-a
+        "a")
+        ,boolean))
+  (fun-spec
+    (name "set-fold")
+    (arity 3)
+    (params)
+    (args ("f" "base" "st"))
+    (return "Base")
+    (contract
+      (a-arrow
+        (a-arrow "Base" "Elt" "Base")
+        "Base"
+        (a-app (a-id "Set" (xref "sets" "Set")) "Elt"))
+        "Base"))
   ))
 
 @docmodule["sets"]{
@@ -653,5 +741,15 @@ Generates the power set of a set.
         [set: "A", "C"], [set: "B", "C"], [set: "A", "B", "C"]]
     end
   }
+
+
+  @function["set-union"]
+  @function["set-difference"]
+  @function["set-symmetric-difference"]
+  @function["set-to-list"]
+  @function["set-add"]
+  @function["set-remove"]
+  @function["set-member"]
+  @function["set-fold"]
 
 }
