@@ -493,7 +493,8 @@ the result set may be smaller than the original set.
   check:
     set-map(is-string, empty-set) is empty-set
     set-map(lam(n): n * 2 end, [set: 1, 0, 3, 5]) is [set: 2, 0, 6, 10]
-    set-map(lam(n): n > 10 end, [tree-set: 3, 0, 10, 111]) is [set: true, false]
+    set-map(lam(n): n > 10 end, [tree-set: 3, 0, 10, 111]) is
+      [set: true, false]
     set-map(is-number, [set: "P", "y", "r", "e", "t"]) is [set: false]
     set-map(lam(n): num-abs(n) end, [set: 6, -9, 4, -4]) is [set: 6, 9, 4]
   end
@@ -525,8 +526,10 @@ Returns true if the given predicate @pyret{f} is true for all elements in a set.
     set-all(is-number, [set: "A", "B"]) is false
     set-all(lam(n): n > 10 end, [set: 4, 10, 3, 11]) is false
     set-all(lam(n): n > 10 end, [set: 12, 200, 11]) is true
-    set-all(lam(s): string-length(s) > 3 end, [set: "A", "C", "EEEE"]) is false
-    set-any(lam(s): string-length(s) > 3 end, [set: "Five", "four", "floor"]) is true
+    set-all(lam(s): string-length(s) > 3 end, [set: "A", "C", "EEEE"]) is
+      false
+    set-all(lam(s): string-length(s) > 3 end, [set: "Five", "four", "floor"]) is
+      true
   end
 }
 
@@ -541,7 +544,8 @@ Returns true if the given predicate @pyret{f} is true for any element in the set
       set-any(is-number, [set: 2]) is true
       set-any(lam(n): n < 5 end, [set: 0, 10, 22]) is true
       set-any(lam(n): n < 5 end, [set: 5, 7, 6]) is false
-      set-any(lam(s): string-length(s) > 3 end, [set: "A", "C", "EEEE"]) is true
+      set-any(lam(s): string-length(s) > 3 end, [set: "A", "C", "EEEE"]) is
+        true
     end
   }
 
@@ -559,7 +563,8 @@ value; should some performance be sacrificed for non-determinism?]
     check:
       set-find(is-number, [set: ]) is none
       set-find(is-number, [set: "A", "B"]) is none
-      [set: 2, 3, 10].member(set-find(is-number, [set: 2, 3, 10]).value) is true
+      [set: 2, 3, 10].member(set-find(is-number, [set: 2, 3, 10]).value) is
+        true
       set-find(lam(n): n < 10 end, [set: 10, -2, 20]) is some(-2)
     end
   }
@@ -572,11 +577,14 @@ and one with elements for which @pyret{f(elt)} is false.
 
   @examples{
     check:
-      set-partition(is-number, [set: ]) is {is-true: [set: ], is-false: [set: ]}
-      set-partition(is-number, [set: 1]) is {is-true: [set: 1], is-false: [set: ]}
-      set-partition(is-number, [set: "A", "B"]) is {is-true: [set: ], is-false: [set: "A", "B"]}
-      set-partition(lam(n): n > 10 end, [set: 5, 6, 10, 20]) 
-        is {is-true: [set: 20], is-false: [set: 5, 6, 10]}
+      set-partition(is-number, [set: ]) is
+        {is-true: [set: ], is-false: [set: ]}
+      set-partition(is-number, [set: 1]) is
+        {is-true: [set: 1], is-false: [set: ]}
+      set-partition(is-number, [set: "A", "B"]) is
+        {is-true: [set: ], is-false: [set: "A", "B"]}
+      set-partition(lam(n): n > 10 end, [set: 5, 6, 10, 20]) is
+        {is-true: [set: 20], is-false: [set: 5, 6, 10]}
     end
   }
 
@@ -609,7 +617,8 @@ Determines if a set @pyret{st1} is a subset of another set @pyret{st2}.
       is-subset([set: 1, 2], [set: 1, 2]) is true
       is-subset([set: 1, 3], [set: 2, 3]) is false
       is-subset([set: "hi", "he"], [set: "hi", "hello"]) is false
-      is-subset([set: "abyss", "oryx", "lab"], [set: "abyss", "oryx", "lab", "castle"]) is true
+      is-subset([set: "abyss", "oryx", "lab"],
+        [set: "abyss", "oryx", "lab", "castle"]) is true
     end
   }
 
@@ -622,7 +631,8 @@ Determines whether two given sets are equal.
     check:
       set-equal(empty-set, empty-set) is true
       set-equal(empty-set, [set: 1, 2]) is false
-      set-equal([set: "library", "gem", "crown"], [set: "library", "gem", "crown"]) is true
+      set-equal([set: "library", "gem", "crown"],
+        [set: "library", "gem", "crown"]) is true
       set-equal([set: 1, 3, 2, 0, 5], [set: 1, 3, 0, 5]) is false
     end
   }
@@ -636,10 +646,11 @@ Generates the power set of a set.
     check:
       power-set(empty-set) is [set: empty-set]
       power-set([set: 1]) is [set: empty-set, [set: 1]]
-      power-set([set: 1, 2]) is [set: empty-set, [set: 1], [set: 2], [set: 1, 2]]
-      power-set([set: "A", "B", "C"]) 
-        is [set: empty-set, [set: "A"], [set: "B"], [set: "C"], 
-        [set: "A", "B"], [set: "A", "C"], [set: "B", "C"], [set: "A", "B", "C"]]
+      power-set([set: 1, 2]) is
+        [set: empty-set, [set: 1], [set: 2], [set: 1, 2]]
+      power-set([set: "A", "B", "C"]) is
+        [set: empty-set, [set: "A"], [set: "B"], [set: "C"], [set: "A", "B"],
+        [set: "A", "C"], [set: "B", "C"], [set: "A", "B", "C"]]
     end
   }
 
