@@ -10,6 +10,7 @@
 @(define l-of-a '(a-app (a-id "List" (xref "lists" "List")) "a"))
 @(define opt-of-a '(a-app (a-id "Option" (xref "option" "Option")) "a")))
 @(define boolean '(a-id "Boolean" (xref "<global>" "Boolean")))
+@(define number '(a-id "Number" (xref "<global>" "Number")))
 
 @(append-gen-docs
   `(module "sets"
@@ -353,6 +354,18 @@
         "Base"
         (a-app (a-id "Set" (xref "sets" "Set")) "Elt"))
         "Base"))
+  (fun-spec
+    (name "random-set")
+    (arity 3)
+    (params)
+    (args ("lower" "upper" "length"))
+    (return (a-app (a-id "Set" (xref "sets" "Set")) ,number))
+    (contract
+      (a-arrow
+        ,number
+        ,number
+        ,number)
+        (a-app (a-id "Set" (xref "sets" "Set")) ,number)))
   ))
 
 @docmodule["sets"]{
@@ -752,4 +765,6 @@ Generates the power set of a set.
   @function["set-member"]
   @function["set-fold"]
 
+
+  @function["random-set"]
 }
