@@ -767,4 +767,8 @@ Generates the power set of a set.
 
 
   @function["random-set"]
+
+Generates a set of size @pyret{length} with random numbers between @pyret{lower}
+(inclusive) and @pyret{upper} (exclusive).
+
 }
