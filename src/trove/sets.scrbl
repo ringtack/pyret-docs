@@ -8,6 +8,7 @@
 @(define s-of-a '(a-app (a-id "Set" (xref "sets" "Set")) "a"))
 @(define s-of-b '(a-app (a-id "Set" (xref "sets" "Set")) "b"))
 @(define l-of-a '(a-app (a-id "List" (xref "lists" "List")) "a"))
+@(define opt-of-a '(a-app (a-id "Option" (xref "option" "Option")) "a")))
 @(define boolean '(a-id "Boolean" (xref "<global>" "Boolean")))
 
 @(append-gen-docs
@@ -160,9 +161,7 @@
       (a-arrow
         (a-arrow "a" "b")
         ,s-of-a
-        (a-app ,s-of-b)))
-    (doc
-      "Takes a function and set, and returns a set of the result of applying the function to every element in the set."))
+        (a-app ,s-of-b))))
   (fun-spec
     (name "set-filter")
     (arity 2)
@@ -173,11 +172,99 @@
       (a-arrow
         (a-arrow "a" ,boolean)
         ,s-of-a
-        (a-app ,s-of-a)))
-    (doc
-      "Returns the subset of st for which f(elem) is true."))
-
-
+        (a-app ,s-of-a))))
+  (fun-spec
+    (name "set-all")
+    (arity 2)
+    (params ())
+    (args ("f" "st"))
+    (return ,boolean)
+    (contract
+      (a-arrow
+        (a-arrow "a" ,boolean)
+        ,s-of-a)
+        ,boolean))
+  (fun-spec
+    (name "set-any")
+    (arity 2)
+    (params ())
+    (args ("f" "st"))
+    (return ,boolean)
+    (contract
+      (a-arrow
+        (a-arrow "a" ,boolean)
+        ,s-of-a)
+        ,boolean))
+  (fun-spec
+    (name "set-find")
+    (arity 2)
+    (params ())
+    (args ("f" "st"))
+    (return ,opt-of-a)
+    (contract
+      (a-arrow
+        (a-arrow "a" ,boolean)
+        ,s-of-a)
+        ,opt-of-a))
+  (fun-spec
+    (name "set-partition")
+    (arity 2)
+    (params ())
+    (args ("f" "st"))
+    (return
+      (a-record
+        (a-field "is-true" ,s-of-a)
+        (a-field "is-false" ,s-of-a)))
+    (contract
+      (a-arrow
+        (a-arrow "a" ,boolean)
+        ,s-of-a
+        (a-record
+          (a-field "is-true" ,s-of-a)
+          (a-field "is-false" ,s-of-a)))))
+  (fun-spec
+    (name "set-disjoint")
+    (arity 2)
+    (params ())
+    (args ("st1" "st2"))
+    (return ,boolean)
+    (contract
+      (a-arrow
+        ,s-of-a
+        ,s-of-a)
+        ,boolean))
+  (fun-spec
+    (name "is-subset")
+    (arity 2)
+    (params ())
+    (args ("st1" "st2"))
+    (return ,boolean)
+    (contract
+      (a-arrow
+        ,s-of-a
+        ,s-of-a)
+        ,boolean))
+  (fun-spec
+    (name "set-equal")
+    (arity 2)
+    (params ())
+    (args ("st1" "st2"))
+    (return ,boolean)
+    (contract
+      (a-arrow
+        ,s-of-a
+        ,s-of-a)
+        ,boolean))
+  (fun-spec
+    (name "power-set")
+    (arity 1)
+    (params ())
+    (args ("st"))
+    (return (a-app (a-id "Set" (xref "sets" "Set")) ,s-of-a))
+    (contract
+      (a-arrow
+        ,s-of-a)
+        (a-app (a-id "Set" (xref "sets" "Set")) ,s-of-a)))
   ))
 
 @docmodule["sets"]{
@@ -397,9 +484,11 @@ get rid of the prefix].
       }
     }
 
-  @function["set-map"]
-
-Note that set-map is @bold{NOT} shape-preserving; that is, the result set may be smaller than the original set.
+  @function["set-map"] 
+Takes a function and set, and returns a set of the result of applying
+the function to every element in the set.
+Note that @pyret{set-map} is @bold{NOT} shape-preserving; that is, 
+the result set may be smaller than the original set.
 @examples{
   check:
     set-map(is-string, empty-set) is empty-set
@@ -410,17 +499,148 @@ Note that set-map is @bold{NOT} shape-preserving; that is, the result set may be
   end
 }
 
-  @function[
-    "set-filter"
-    #:examples
-    `@{
-      check:
-        set-filter(is-string, empty-set) is empty-set
-        set-filter(is-string, [set: 1]) is empty-set
-        set-filter(is-string, [set: "A", "B", "C"]) is [set: "A", "B", "C"]
-        set-filter(lam(n): n > 10 end, [set: 1, 2, 10, 100, -11]) is [set: 100]
-      end
-    }
-  ]
+  @function["set-filter"]
+
+Returns the subset of @pyret{st} for which @pyret{f(elem)} is true.
+
+@examples{
+  check:
+    set-filter(is-string, empty-set) is empty-set
+    set-filter(is-string, [set: 1]) is empty-set
+    set-filter(is-string, [set: "A", "B", "C"]) is [set: "A", "B", "C"]
+    set-filter(lam(n): n > 10 end, [set: 1, 2, 10, 100, -11]) is [set: 100]
+  end
+}
+
+
+
+  @function["set-all"]
+
+Returns true if the given predicate @pyret{f} is true for all elements in a set.
+
+@examples{
+  check:
+    set-all(is-number, [set: ]) is true
+    set-all(is-number, [set: 1]) is true
+    set-all(is-number, [set: "A", "B"]) is false
+    set-all(lam(n): n > 10 end, [set: 4, 10, 3, 11]) is false
+    set-all(lam(n): n > 10 end, [set: 12, 200, 11]) is true
+    set-all(lam(s): string-length(s) > 3 end, [set: "A", "C", "EEEE"]) is false
+    set-any(lam(s): string-length(s) > 3 end, [set: "Five", "four", "floor"]) is true
+  end
+}
+
+
+  @function["set-any"]
+
+Returns true if the given predicate @pyret{f} is true for any element in the set.
+
+  @examples{
+    check:
+      set-any(is-number, [set: ]) is false
+      set-any(is-number, [set: 2]) is true
+      set-any(lam(n): n < 5 end, [set: 0, 10, 22]) is true
+      set-any(lam(n): n < 5 end, [set: 5, 7, 6]) is false
+      set-any(lam(s): string-length(s) > 3 end, [set: "A", "C", "EEEE"]) is true
+    end
+  }
+
+
+  @function["set-find"]
+
+Returns @pyret{some(elt)} for an element in @pyret{st} that satisfies @pyret{f(elt)},
+or @pyret{none} otherwise.
+
+Note that @pyret{set-find} may be non-deterministic; repeated calls may not produce the
+same result for the same set. [TODO: currently, @pyret{set-find} always returns the same
+value; should some performance be sacrificed for non-determinism?]
+
+  @examples{
+    check:
+      set-find(is-number, [set: ]) is none
+      set-find(is-number, [set: "A", "B"]) is none
+      [set: 2, 3, 10].member(set-find(is-number, [set: 2, 3, 10]).value) is true
+      set-find(lam(n): n < 10 end, [set: 10, -2, 20]) is some(-2)
+    end
+  }
+
+  
+  @function["set-partition"]
+
+Partitions a set into two sets, one with elements for which @pyret{f(elt)} is true,
+and one with elements for which @pyret{f(elt)} is false.
+
+  @examples{
+    check:
+      set-partition(is-number, [set: ]) is {is-true: [set: ], is-false: [set: ]}
+      set-partition(is-number, [set: 1]) is {is-true: [set: 1], is-false: [set: ]}
+      set-partition(is-number, [set: "A", "B"]) is {is-true: [set: ], is-false: [set: "A", "B"]}
+      set-partition(lam(n): n > 10 end, [set: 5, 6, 10, 20]) 
+        is {is-true: [set: 20], is-false: [set: 5, 6, 10]}
+    end
+  }
+
+
+  @function["set-disjoint"]
+
+ Returns true if two sets are disjoint.
+
+  @examples{
+    check:
+      set-disjoint([set: ], [set: ]) is true
+      set-disjoint([set: ], [set: 2]) is true
+      set-disjoint([set: "A"], [set: ]) is true
+      set-disjoint([set: "A"], [set: "A"]) is false
+      set-disjoint([set: 1, 2, 3], [set: 2, 5, 6]) is false
+      set-disjoint([set: "A", "B", "C"], [set: "X", "Y", "Z"]) is true
+    end
+  }
+
+
+  @function["is-subset"]
+
+Determines if a set @pyret{st1} is a subset of another set @pyret{st2}.
+
+  @examples{
+    check:
+      is-subset(empty-set, empty-set) is true
+      is-subset(empty-set, [set: 1, 5, 23]) is true
+      is-subset([set: 4, 3, 2, 1], empty-set) is false
+      is-subset([set: 1, 2], [set: 1, 2]) is true
+      is-subset([set: 1, 3], [set: 2, 3]) is false
+      is-subset([set: "hi", "he"], [set: "hi", "hello"]) is false
+      is-subset([set: "abyss", "oryx", "lab"], [set: "abyss", "oryx", "lab", "castle"]) is true
+    end
+  }
+
+
+  @function["set-equal"]
+
+Determines whether two given sets are equal.
+
+  @examples{
+    check:
+      set-equal(empty-set, empty-set) is true
+      set-equal(empty-set, [set: 1, 2]) is false
+      set-equal([set: "library", "gem", "crown"], [set: "library", "gem", "crown"]) is true
+      set-equal([set: 1, 3, 2, 0, 5], [set: 1, 3, 0, 5]) is false
+    end
+  }
+
+  
+  @function["power-set"]
+
+Generates the power set of a set.
+
+  @examples{
+    check:
+      power-set(empty-set) is [set: empty-set]
+      power-set([set: 1]) is [set: empty-set, [set: 1]]
+      power-set([set: 1, 2]) is [set: empty-set, [set: 1], [set: 2], [set: 1, 2]]
+      power-set([set: "A", "B", "C"]) 
+        is [set: empty-set, [set: "A"], [set: "B"], [set: "C"], 
+        [set: "A", "B"], [set: "A", "C"], [set: "B", "C"], [set: "A", "B", "C"]]
+    end
+  }
 
 }
