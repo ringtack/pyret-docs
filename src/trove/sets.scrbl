@@ -6,6 +6,7 @@
   (method-doc "Set" #f name #:alt-docstrings docs #:contract contract #:return return))
 
 @(define s-of-a '(a-app (a-id "Set" (xref "sets" "Set")) "a"))
+@(define s-of-b '(a-app (a-id "Set" (xref "sets" "Set")) "b"))
 @(define l-of-a '(a-app (a-id "List" (xref "lists" "List")) "a"))
 @(define boolean '(a-id "Boolean" (xref "<global>" "Boolean")))
 
@@ -146,6 +147,37 @@
               ,s-of-a)))
         ))
       )
+  (fun-spec
+    (name "size")
+    (arity 1))
+  (fun-spec
+    (name "set-map")
+    (arity 2)
+    (params ())
+    (args ("f" "st"))
+    (return ,s-of-b)
+    (contract
+      (a-arrow
+        (a-arrow "a" "b")
+        ,s-of-a
+        (a-app ,s-of-b)))
+    (doc
+      "Takes a function and set, and returns a set of the result of applying the function to every element in the set."))
+  (fun-spec
+    (name "set-filter")
+    (arity 2)
+    (params ())
+    (args ("f" "st"))
+    (return ,s-of-a)
+    (contract
+      (a-arrow
+        (a-arrow "a" ,boolean)
+        ,s-of-a
+        (a-app ,s-of-a)))
+    (doc
+      "Returns the subset of st for which f(elem) is true."))
+
+
   ))
 
 @docmodule["sets"]{
@@ -338,5 +370,57 @@ check:
   result is%(one-of) [list: "123", "132", "213", "231", "312", "321"]
 end
 }
+
+@section{Set Functions}
+
+These functions are available on the @pyret{sets} module object. Some of the
+functions require the @pyret{sets} module to be @pyret{import}ed, as indicated
+in the examples [TODO: which ones require this? Currently, we name each function
+@pyret{set-<...>}; if we require the module to be imported, we can potentially
+get rid of the prefix].
+
+  @function["size"
+    #:contract (a-arrow (S-of "a") N)
+    #:args '(("st" #f))
+    #:return N
+    ]{
+
+      Returns the number of elements in the @pyret{Set}.
+
+      @examples{
+        import sets as S
+        check:
+          S.size(empty-set) is 0
+          S.size([set: 1, 0, 5, 3]) is 4
+          S.size([tree-set: "Pyret", "rocks!"]) is 2
+        end
+      }
+    }
+
+  @function["set-map"]
+
+Note that set-map is @bold{NOT} shape-preserving; that is, the result set may be smaller than the original set.
+@examples{
+  check:
+    set-map(is-string, empty-set) is empty-set
+    set-map(lam(n): n * 2 end, [set: 1, 0, 3, 5]) is [set: 2, 0, 6, 10]
+    set-map(lam(n): n > 10 end, [tree-set: 3, 0, 10, 111]) is [set: true, false]
+    set-map(is-number, [set: "P", "y", "r", "e", "t"]) is [set: false]
+    set-map(lam(n): num-abs(n) end, [set: 6, -9, 4, -4]) is [set: 6, 9, 4]
+  end
+}
+
+  @function[
+    "set-filter"
+    #:examples
+    `@{
+      check:
+        set-filter(is-string, empty-set) is empty-set
+        set-filter(is-string, [set: 1]) is empty-set
+        set-filter(is-string, [set: "A", "B", "C"]) is [set: "A", "B", "C"]
+        set-filter(lam(n): n > 10 end, [set: 1, 2, 10, 100, -11]) is [set: 100]
+      end
+    }
+  ]
 
 }
